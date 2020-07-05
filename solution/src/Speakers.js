@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect, useContext, useReducer } from "react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../static/site.css";
@@ -6,13 +6,21 @@ import { Header } from "../src/Header";
 import { Menu } from "../src/Menu";
 import SpeakerData from "./SpeakerData";
 import SpeakerDetail from "./SpeakerDetail";
+import { ConfigContext } from "./App";
+import speakersReducer from "./speakersReducer";
 
 const Speakers = ({}) => {
   const [speakingSaturday, setSpeakingSaturday] = useState(true);
   const [speakingSunday, setSpeakingSunday] = useState(true);
 
-  const [speakerList, setSpeakerList] = useState([]);
+  // const [speakerList, setSpeakerList] = useState([]);
+  // const [speakerList, setSpeakerList] = userReducer((state, action) => action, []);
+
+  const [speakerList, dispatch] = useReducer(speakersReducer, []);
+
   const [isLoading, setIsLoading] = useState(true);
+
+  const context = useContext(ConfigContext);
 
   useEffect(() => {
     setIsLoading(true);
@@ -25,7 +33,11 @@ const Speakers = ({}) => {
       const speakerListServerFilter = SpeakerData.filter(({ sat, sun }) => {
         return (speakingSaturday && sat) || (speakingSunday && sun);
       });
-      setSpeakerList(speakerListServerFilter);
+      // setSpeakerList(speakerListServerFilter);
+      dispatch({
+        type: "setSpeakerList",
+        data: speakerListServerFilter
+      });
     });
     return () => {
       console.log("cleanup");
@@ -59,13 +71,17 @@ const Speakers = ({}) => {
   const heartFavoriteHandler = (e, favoriteValue) => {
     e.preventDefault();
     const sessionId = parseInt(e.target.attributes["data-sessionid"].value);
-    setSpeakerList(speakerList.map(item => {
-      if (item.id === sessionId) {
-        item.favorite = favoriteValue;
-        return item;
-      }
-      return item;
-    }));
+    // setSpeakerList(speakerList.map(item => {
+    //   if (item.id === sessionId) {
+    //     item.favorite = favoriteValue;
+    //     return item;
+    //   }
+    //   return item;
+    // }));
+    dispatch({
+      type: favoriteValue === true ? "favorite" : "unfavorite",
+      sessionId
+    });
     //console.log("changing session favorte to " + favoriteValue);
   };
 
@@ -77,6 +93,7 @@ const Speakers = ({}) => {
       <Menu />
       <div className="container">
         <div className="btn-toolbar  margintopbottom5 checkbox-bigger">
+          {context.showSpeakerSpeakingDays === false ? null : (
           <div className="hide">
             <div className="form-check-inline">
               <label className="form-check-label">
@@ -101,6 +118,7 @@ const Speakers = ({}) => {
               </label>
             </div>
           </div>
+          )}
         </div>
         <div className="row">
           <div className="card-deck">

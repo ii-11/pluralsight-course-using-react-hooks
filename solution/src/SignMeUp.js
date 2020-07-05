@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import { ConfigContext } from "./App";
 
 const SignMeUp = ({ signupCallback }) => {
+  const context = useContext(ConfigContext);
+
   useEffect(() => {
     console.log(`SignMeUp:useEffect called`);
   });
@@ -39,7 +42,7 @@ const SignMeUp = ({ signupCallback }) => {
 
   //console.log("src/SignMeUp called");
 
-  return (
+  return context.showSignMeUp === false ? null : (
     <div className="container">
       <div>
         <ToastContainer />
